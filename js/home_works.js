@@ -1,20 +1,31 @@
-// MOVE BLOCK HW 1.2
+// GMAIL BLOCK
+const gmailInput = document.querySelector("#gmail_input");
+const gmailButton = document.querySelector("#gmail_button");
+const gmailResult = document.querySelector("#gmail_result");
 
-const parentBlock = document.querySelector('.parent_block');
-const childBlock = document.querySelector('.child_block');
+// \. - means literal dot
+const regExp = /^[\w.+-]+@gmail\.com$/;
 
-let positionX = 0
-let positionY = 0
+gmailButton.onclick = () => {
+  if (regExp.test(gmailInput.value)) {
+    gmailResult.innerHTML = "OK";
+    gmailResult.style.color = "green";
+  } else {
+    gmailResult.innerHTML = "NOT OK";
+    gmailResult.style.color = "red";
+  }
+};
 
-const offWidth = parentBlock.offsetWidth - childBlock.offsetWidth
-const offHeight = parentBlock.offsetHeight - childBlock.offsetHeight
+//MOVE BLOCK
 
-const moveBlock = () => {
-    if (positionX < offWidth) positionX++
-    if (positionX >= offWidth && positionY < offHeight) positionY++
-    childBlock.style.left = `${positionX}px`
-    childBlock.style.top = `${positionY}px`
-    requestAnimationFrame(moveBlock)
-}
+let blockMove = document.querySelector(".child_block");
+let positionX = 0;
 
-moveBlock();
+const movingBlock = () => {
+  blockMove.style.left = positionX + "px";
+  positionX++;
+  if (positionX < 450) {
+    requestAnimationFrame(movingBlock);
+  }
+};
+movingBlock();
