@@ -77,3 +77,47 @@ resetbtn.onclick = () => {
   num = 0;
   seconds.innerHTML = num;
 };
+
+//3 characters - json
+
+const charactersContainer = document.querySelector(".characters-list");
+
+const characters = () => {
+  const request = new XMLHttpRequest();
+  request.open("GET", "../data/characters.json");
+  request.setRequestHeader("Content-type", "application/json");
+  request.send();
+
+  request.onload = () => {
+    const data = JSON.parse(request.response);
+
+    data.forEach((character) => {
+      const personBlock = document.createElement("div");
+      personBlock.classList.add("person");
+
+      personBlock.innerHTML = `
+        <div class="person_photo">
+          <img src="${character.photo}" alt="${character.name}" />
+        </div>
+        <div class="person_name">${character.name}</div>
+        <div class="person_age">Age: ${character.age}</div>
+      `;
+
+      charactersContainer.appendChild(personBlock);
+    });
+  };
+};
+
+characters();
+
+// json - about me - console.log
+
+const requestAny = new XMLHttpRequest();
+requestAny.open("GET", "../data/any.json");
+requestAny.setRequestHeader("Content-type", "application/json");
+requestAny.send();
+
+requestAny.onload = () => {
+  const data = JSON.parse(requestAny.response);
+  console.log("Data from any.json:", data);
+};
