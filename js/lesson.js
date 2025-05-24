@@ -74,3 +74,68 @@ setInterval(() => {
   hideTabContent();
   showTabContent(index);
 }, 3000);
+
+//CONVERTER
+
+const somInput = document.querySelector("#som");
+const usdInput = document.querySelector("#usd");
+const eurInput = document.querySelector("#eur");
+
+//DRY
+
+const converter = () => {
+  const request = new XMLHttpRequest();
+  request.open("GET", "../data/converter.json");
+  request.setRequestHeader("Content-type", "application/json");
+  request.send();
+
+  request.onload = () => {
+    const data = JSON.parse(request.response);
+
+    somInput.oninput = () => {
+      usdInput.value = (somInput.value / data.usd).toFixed(2);
+      eurInput.value = (somInput.value / data.eur).toFixed(2);
+      if (somInput.value === "") {
+        usdInput.value = "";
+        eurInput.value = "";
+      }
+    };
+
+    usdInput.oninput = () => {
+      somInput.value = (usdInput.value * data.usd).toFixed(2);
+      eurInput.value = ((usdInput.value * data.usd) / data.eur).toFixed(2);
+      if (usdInput.value === "") {
+        somInput.value = "";
+        eurInput.value = "";
+      }
+    };
+
+    eurInput.oninput = () => {
+      somInput.value = (eurInput.value * data.eur).toFixed(2);
+      usdInput.value = ((eurInput.value * data.eur) / data.usd).toFixed(2);
+      if (eurInput.value === "") {
+        somInput.value = "";
+        usdInput.value = "";
+      }
+    };
+  };
+};
+
+converter();
+
+// // ____.oninput - when the input is changed
+
+// usdInput.oninput = () => {
+//   const request = new XMLHttpRequest();
+//   request.open("GET", "../data/converter.json");
+//   request.setRequestHeader("Content-type", "application/json");
+//   request.send();
+
+//   request.onload = () => {
+//     const data = JSON.parse(request.response);
+//     somInput.value = (usdInput.value * data.usd).toFixed(2); // ().toFixed(2) - means that the number will be rounded to 2 decimal places
+//   };
+// };
+
+// DRY - Don't repeat yourself
+// KISS - Keep it simple stupid
