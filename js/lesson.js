@@ -1,16 +1,9 @@
 // PHONE BLOCK
-
 const phoneInput = document.querySelector("#phone_input");
 const phoneButton = document.querySelector("#phone_button");
 const phoneResult = document.querySelector("#phone_result");
 
-// \+ - is just a symbol with \
-// d{2} - means 2 digits - \d\d
-// /^________$/ - means that the string must start and end with the regular expression
-
 const regExp = /^\+996 [2579]\d{2} \d{2}-\d{2}-\d{2}$/;
-
-// .test - checks if the string matches the regular expression
 
 phoneButton.onclick = () => {
   if (regExp.test(phoneInput.value)) {
@@ -22,20 +15,14 @@ phoneButton.onclick = () => {
   }
 };
 
-//TAB SLIDER
-
+// TAB SLIDER
 const tabContentBlocks = document.querySelectorAll(".tab_content_block");
 const tabs = document.querySelectorAll(".tab_content_item");
-//Event delegation - when pressing on the parent element
 const tabsParent = document.querySelector(".tab_content_items");
 
 const hideTabContent = () => {
-  tabContentBlocks.forEach((item) => {
-    item.style.display = "none";
-  });
-  tabs.forEach((tab) => {
-    tab.classList.remove("tab_content_item_active");
-  });
+  tabContentBlocks.forEach((item) => (item.style.display = "none"));
+  tabs.forEach((tab) => tab.classList.remove("tab_content_item_active"));
 };
 
 const showTabContent = (index = 0) => {
@@ -44,44 +31,32 @@ const showTabContent = (index = 0) => {
 };
 
 hideTabContent();
-showTabContent(); //index of the tab to show
+showTabContent();
 
-//(index = 0) - default parametr - means that if the index is not passed, it will be 0 by default
-
-//Delegation continue from up
 tabsParent.onclick = (event) => {
   const target = event.target;
-  if (event.target.classList.contains("tab_content_item")) {
+  if (target.classList.contains("tab_content_item")) {
     tabs.forEach((tab, tabIndex) => {
-      if (event.target === tab) {
+      if (target === tab) {
         hideTabContent();
         showTabContent(tabIndex);
-        index = tabIndex;
       }
     });
   }
 };
 
-//hw3 Auto slider - 3 sex
-
 let index = 0;
-
 setInterval(() => {
   index++;
-  if (index >= tabs.length) {
-    index = 0;
-  }
+  if (index >= tabs.length) index = 0;
   hideTabContent();
   showTabContent(index);
 }, 3000);
 
-//CONVERTER
-
+// CONVERTER (DRY version)
 const somInput = document.querySelector("#som");
 const usdInput = document.querySelector("#usd");
 const eurInput = document.querySelector("#eur");
-
-//DRY
 
 const converter = () => {
   const request = new XMLHttpRequest();
@@ -92,50 +67,64 @@ const converter = () => {
   request.onload = () => {
     const data = JSON.parse(request.response);
 
-    somInput.oninput = () => {
-      usdInput.value = (somInput.value / data.usd).toFixed(2);
-      eurInput.value = (somInput.value / data.eur).toFixed(2);
-      if (somInput.value === "") {
-        usdInput.value = "";
-        eurInput.value = "";
-      }
+    const convert = (source, target1, target2, rate1, rate2) => {
+      source.oninput = () => {
+        if (source.value === "") {
+          target1.value = "";
+          target2.value = "";
+          return;
+        }
+        const base = parseFloat(source.value);
+        if (source === somInput) {
+          target1.value = (base / rate1).toFixed(2);
+          target2.value = (base / rate2).toFixed(2);
+        } else {
+          target1.value = (base * rate1).toFixed(2);
+          target2.value = ((base * rate1) / rate2).toFixed(2);
+        }
+      };
     };
 
-    usdInput.oninput = () => {
-      somInput.value = (usdInput.value * data.usd).toFixed(2);
-      eurInput.value = ((usdInput.value * data.usd) / data.eur).toFixed(2);
-      if (usdInput.value === "") {
-        somInput.value = "";
-        eurInput.value = "";
-      }
-    };
-
-    eurInput.oninput = () => {
-      somInput.value = (eurInput.value * data.eur).toFixed(2);
-      usdInput.value = ((eurInput.value * data.eur) / data.usd).toFixed(2);
-      if (eurInput.value === "") {
-        somInput.value = "";
-        usdInput.value = "";
-      }
-    };
+    convert(somInput, usdInput, eurInput, data.usd, data.eur);
+    convert(usdInput, somInput, eurInput, data.usd, data.eur);
+    convert(eurInput, somInput, usdInput, data.eur, data.usd);
   };
 };
 
 converter();
 
-// // ____.oninput - when the input is changed
+// CARD SWITCHER — Task 1
+const cardBlock = document.querySelector(".card");
+const btnNext = document.querySelector("#btn-next");
+const btnPrev = document.querySelector("#btn-prev");
+let cardId = 1;
 
-// usdInput.oninput = () => {
-//   const request = new XMLHttpRequest();
-//   request.open("GET", "../data/converter.json");
-//   request.setRequestHeader("Content-type", "application/json");
-//   request.send();
+const fetchCard = (id) => {
+  fetch(`https://jsonplaceholder.typicode.com/todos/${id}`)
+    .then((res) => res.json())
+    .then(({ id, title, completed }) => {
+      cardBlock.innerHTML = `
+        <p>${title}</p>
+        <p style="color: ${completed ? "green" : "red"}">${completed}</p>
+        <span>${id}</span>
+      `;
+    });
+};
 
-//   request.onload = () => {
-//     const data = JSON.parse(request.response);
-//     somInput.value = (usdInput.value * data.usd).toFixed(2); // ().toFixed(2) - means that the number will be rounded to 2 decimal places
-//   };
-// };
+// Show first card on page load
+fetchCard(cardId);
 
-// DRY - Don't repeat yourself
-// KISS - Keep it simple stupid
+btnNext.onclick = () => {
+  cardId = cardId === 200 ? 1 : cardId + 1;
+  fetchCard(cardId);
+};
+
+btnPrev.onclick = () => {
+  cardId = cardId === 1 ? 200 : cardId - 1;
+  fetchCard(cardId);
+};
+
+// FETCH POSTS TO CONSOLE — Task 2
+fetch("https://jsonplaceholder.typicode.com/posts")
+  .then((res) => res.json())
+  .then((data) => console.log("POSTS:", data));
